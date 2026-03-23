@@ -1,6 +1,7 @@
-# UK Jobs Sponsor Match Demo
+# UK Jobs Sponsor Match
 
 A minimal Next.js 14 demo app that:
+
 - reads UK sponsor organisations from a local CSV
 - fetches jobs from the Reed API on the server
 - filters for entry-level style roles
@@ -66,6 +67,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Date limitation in this demo
 
 Reed returns a date field, not exact post time. For demo purposes:
+
 - "last 24h" means jobs whose Reed date is **today**
 - if none are found, the app falls back to jobs from the previous 2 calendar days and shows a note in the UI
 
