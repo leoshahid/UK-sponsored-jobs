@@ -83,5 +83,5 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Notes
 
-- This is a demo only (no auth, DB, payments, admin, deployment config).
+- This is a demo only (no auth, DB, payments, admin).
 - The page calls only the local API route; browser does not call external job APIs directly.
