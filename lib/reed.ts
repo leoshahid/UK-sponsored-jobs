@@ -28,7 +28,11 @@ type ReedResponse = {
 };
 
 type ReedCacheEntry = {
-  jobs: ReedJob[];
+  result: {
+    jobs: ReedJob[];
+    totalAvailable: number;
+    truncated: boolean;
+  };
   expiresAt: number;
 };
 
@@ -42,7 +46,9 @@ export async function fetchReedJobs(options?: {
   maxPages?: number;
   resultsToTake?: number;
   graduate?: boolean;
-}): Promise<ReedJob[]> {
+  timeoutMs?: number;
+  maxTotalJobs?: number;
+}): Promise<{ jobs: ReedJob[]; totalAvailable: number; truncated: boolean }> {
   const apiKey = process.env.REED_API_KEY;
   if (!apiKey) {
     throw new Error("Missing REED_API_KEY environment variable.");
@@ -51,11 +57,13 @@ export async function fetchReedJobs(options?: {
   const maxPages = options?.maxPages ?? 60;
   const resultsToTake = options?.resultsToTake ?? 100;
   const graduate = options?.graduate ?? true;
-  const cacheKey = `${maxPages}:${resultsToTake}:${graduate}`;
+  const timeoutMs = options?.timeoutMs ?? 12000;
+  const maxTotalJobs = options?.maxTotalJobs ?? 5000;
+  const cacheKey = `${maxPages}:${resultsToTake}:${graduate}:${timeoutMs}:${maxTotalJobs}`;
   const now = Date.now();
   const cached = reedResponseCache.get(cacheKey);
   if (cached && cached.expiresAt > now) {
-    return cached.jobs;
+    return cached.result;
   }
 
   const allResults: ReedJob[] = [];
@@ -74,7 +82,8 @@ export async function fetchReedJobs(options?: {
         Authorization: buildBasicAuthHeader(apiKey),
         Accept: "application/json"
       },
-      cache: "no-store"
+      cache: "no-store",
+      signal: AbortSignal.timeout(timeoutMs)
     });
 
     if (!res.ok) {
@@ -88,14 +97,20 @@ export async function fetchReedJobs(options?: {
 
     if (!data.results?.length) break;
     if (allResults.length >= totalResults) break;
+    if (allResults.length >= maxTotalJobs) break;
   }
 
+  const limitedJobs = allResults.slice(0, maxTotalJobs);
+  const totalAvailable = Number.isFinite(totalResults) ? totalResults : limitedJobs.length;
+  const truncated = limitedJobs.length < totalAvailable;
+  const result = { jobs: limitedJobs, totalAvailable, truncated };
+
   reedResponseCache.set(cacheKey, {
-    jobs: allResults,
+    result,
     expiresAt: now + 5 * 60 * 1000
   });
 
-  return allResults;
+  return result;
 }
 
 export function filterEntryLevelJobs(jobs: ReedJob[]): ReedJob[] {
