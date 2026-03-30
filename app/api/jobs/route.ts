@@ -77,8 +77,6 @@ type JobsApiPayload = {
 };
 
 const ROUTE_CACHE_TTL_MS = 60 * 1000;
-const REED_RESULTS_PER_PAGE = 100;
-const ADZUNA_RESULTS_PER_PAGE = 50;
 const routeCache = new Map<
   string,
   { payload: JobsApiPayload; expiresAt: number }
@@ -193,17 +191,19 @@ export async function GET(request: Request) {
 
     const sponsors = await loadSponsors();
 
-    const reedMaxTotalJobs = Number(process.env.REED_MAX_TOTAL_JOBS ?? "5000");
-    // Keep Adzuna usage low by default to protect daily quota.
-    const adzunaMaxPages = Number(process.env.ADZUNA_MAX_PAGES ?? "2");
-    const adzunaResultsPerPage = Number(process.env.ADZUNA_RESULTS_PER_PAGE ?? "25");
+    const reedMaxTotalJobs = Number(process.env.REED_MAX_TOTAL_JOBS ?? "1000");
+    const reedResultsPerPage = Number(process.env.REED_RESULTS_PER_PAGE ?? "100");
+    const reedMaxPages = Number(process.env.REED_MAX_PAGES ?? "20");
+
+    const adzunaMaxPages = Number(process.env.ADZUNA_MAX_PAGES ?? "20");
+    const adzunaResultsPerPage = Number(process.env.ADZUNA_RESULTS_PER_PAGE ?? "50");
     const adzunaTimeoutMs = Number(process.env.ADZUNA_TIMEOUT_MS ?? "30000");
-    const adzunaMaxTotalJobs = Number(process.env.ADZUNA_MAX_TOTAL_JOBS ?? "50");
+    const adzunaMaxTotalJobs = Number(process.env.ADZUNA_MAX_TOTAL_JOBS ?? "1000");
 
     const [reedResult, adzunaResult] = await Promise.allSettled([
       fetchReedJobs({
-        maxPages: 200,
-        resultsToTake: REED_RESULTS_PER_PAGE,
+        maxPages: reedMaxPages,
+        resultsToTake: reedResultsPerPage,
         graduate,
         timeoutMs: 10000,
         maxTotalJobs: reedMaxTotalJobs
