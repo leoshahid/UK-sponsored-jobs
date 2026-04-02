@@ -8,12 +8,18 @@ export default function HomePage() {
           UK Entry-Level Jobs with Sponsor Match (Reed + Adzuna)
         </h1>
         <p className="text-sm text-slate-700 md:text-base">
-          This demo fetches jobs from Reed and Adzuna, keeps the listings separate side-by-side, and shows only
-          employers that match organisations in your local sponsorship licence CSV.
+          This demo fetches jobs from Reed and Adzuna, keeps the listings
+          separate side-by-side, and shows only employers that match
+          organisations in your local sponsorship licence CSV.
         </p>
       </header>
-
-      <JobListClient />
+      <h2 className="text-2xl font-bold tracking-tight text-red-500 md:text-3xl text-center">
+        The Free Quota has been expired.
+      </h2>
+      <p className="text-sm text-slate-700 md:text-base text-center">
+        Please upgrade to a paid plan to continue using the service.
+      </p>
+      {/* <JobListClient /> */}
     </main>
   );
 }
