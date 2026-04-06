@@ -13,13 +13,13 @@ export default function HomePage() {
           organisations in your local sponsorship licence CSV.
         </p>
       </header>
-      {/* <h2 className="text-2xl font-bold tracking-tight text-red-500 md:text-3xl text-center">
+      <h2 className="text-2xl font-bold tracking-tight text-red-500 md:text-3xl text-center">
         The Free Quota has been expired.
       </h2>
       <p className="text-sm text-slate-700 md:text-base text-center">
         Please upgrade to a paid plan to continue using the service.
-      </p> */}
-      <JobListClient />
+      </p>
+      {/* <JobListClient /> */}
     </main>
   );
 }
